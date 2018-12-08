@@ -1,7 +1,8 @@
 const express = require('express');
 
-//Import AppointmentController
+//Import Controllers
 const appointments = require("./controllers/appointments");
+const users = require("./controllers/users");
 
 
 class Server {
@@ -9,6 +10,7 @@ class Server {
   constructor({port}){
     this.app = express();
     this.port = port;
+    this.app.use(require('sanitize').middleware);
     this.setMap();
     this.listen();
   }
@@ -17,6 +19,9 @@ class Server {
     //Appointment Actions
     const appointmentRoute = '/appointments';
     this.app.get(`${appointmentRoute}`, appointments.get);
+    //Users Actions
+    const usersRoute = '/users';
+    this.app.post(`${usersRoute}`, users.create);
   }
 
   listen(){
