@@ -3,7 +3,7 @@ const {app} = require("../server.js");
 
 //Database Imports
 const usersQueries = require("../database/users.js");
-const {createUser} = usersQueries;
+const {createUser, createSession, authenticate} = usersQueries;
 
 
 const create = (req, res) => {
@@ -24,6 +24,27 @@ const create = (req, res) => {
   }
 }
 
+const newSession = (req, res) => {
+  const email = req.queryString('email');
+  const password = req.queryString('password');
+  createSession(email, password).then((token) => {
+    res.send(token);
+  }).catch((error) => {
+    res.send(error);
+  });
+}
+
+const authenticateSession = (req, res) => {
+  const token = req.queryString('token');
+  authenticate(token).then((data) => {
+    res.send(true);
+  }).catch((error) => {
+    res.send(error);
+  });
+}
+
 module.exports = {
-  create
+  create,
+  newSession,
+  authenticateSession
 }

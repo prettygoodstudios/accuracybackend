@@ -22,6 +22,8 @@ class Server {
     //Users Actions
     const usersRoute = '/users';
     this.app.post(`${usersRoute}`, users.create);
+    this.app.post(`${usersRoute}/session`, users.newSession);
+    this.app.post(`${usersRoute}/authenticate`, users.authenticateSession);
   }
 
   listen(){
