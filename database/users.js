@@ -68,7 +68,7 @@ const authenticate = (token) => {
       }else{
         const x = new Date();
         const UTCtime = (x.getTime() + x.getTimezoneOffset()*60*1000);
-        const elapsedTime = (UTCtime - rows[0].expiration.getTime())/(1000*60);
+        const elapsedTime = rows[0] ? (UTCtime - rows[0].expiration.getTime())/(1000*60) : 3000;
         if(rows[0] && rows[0].token == token && elapsedTime < 60){
           connection.query(`UPDATE sessions SET expiration = '${new Date().toISOString().slice(0, 19).replace('T', ' ')}' WHERE token = '${token}'`, (error2, rows2, fields) => {
             if(error2){

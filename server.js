@@ -3,6 +3,7 @@ const express = require('express');
 //Import Controllers
 const appointments = require("./controllers/appointments");
 const users = require("./controllers/users");
+const staff = require("./controllers/staff");
 
 
 class Server {
@@ -24,6 +25,9 @@ class Server {
     this.app.post(`${usersRoute}`, users.create);
     this.app.post(`${usersRoute}/session`, users.newSession);
     this.app.post(`${usersRoute}/authenticate`, users.authenticateSession);
+    //Staff Actions
+    const staffRoute = '/staff';
+    this.app.post(`${staffRoute}`, staff.create);
   }
 
   listen(){
