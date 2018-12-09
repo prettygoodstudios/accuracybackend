@@ -1,15 +1,6 @@
 const {connection} = require("./connections.js");
 const bcrypt = require('bcrypt');
 
-function mysqlTimeStampToDate(mysqlTime) {
-  //function parses mysql datetime string and returns javascript Date object
-  //input has to be in this format: 2007-06-05 15:26:02
-  const timestamp = mysqlTime.toString();
-  const regex=/^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9]) (?:([0-2][0-9]):([0-5][0-9]):([0-5][0-9]))?$/;
-  const parts=timestamp.replace(regex,"$1 $2 $3 $4 $5 $6").split(' ');
-  return new Date(parts[0],parts[1]-1,parts[2],parts[3],parts[4],parts[5]);
-
-}
 
 const createUser = (email, password) => {
   return new Promise((resolve, reject) => {
@@ -74,7 +65,7 @@ const authenticate = (token) => {
             if(error2){
               reject(error2);
             }else{
-              resolve(true);
+              resolve(rows[0]);
             }
           });
         }else{

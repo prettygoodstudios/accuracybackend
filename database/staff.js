@@ -23,6 +23,17 @@ const createStaff = ({token, name, jobTitle}) => {
   });
 }
 
+const getStaff = new Promise((resolve, reject) => {
+  connection.query('SELECT * FROM staff;', (error, rows, fields) => {
+    if(error){
+      reject(error);
+    }else{
+      resolve(rows);
+    }
+  });
+});
+
 module.exports = {
-  createStaff
+  createStaff,
+  getStaff
 }

@@ -1,4 +1,4 @@
-const {createStaff} = require("../database/staff.js");
+const {createStaff, getStaff} = require("../database/staff.js");
 
 const create = (req, res) => {
   const token = req.queryString('token');
@@ -15,6 +15,15 @@ const create = (req, res) => {
   }
 }
 
+const get = (req, res) => {
+  getStaff.then((staff) => {
+    res.send(staff);
+  }).catch((error) => {
+    res.send(error);
+  })
+}
+
 module.exports = {
-  create
+  create,
+  get
 }

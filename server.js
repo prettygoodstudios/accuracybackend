@@ -20,6 +20,7 @@ class Server {
     //Appointment Actions
     const appointmentRoute = '/appointments';
     this.app.get(`${appointmentRoute}`, appointments.get);
+    this.app.post(`${appointmentRoute}`, appointments.create);
     //Users Actions
     const usersRoute = '/users';
     this.app.post(`${usersRoute}`, users.create);
@@ -28,6 +29,7 @@ class Server {
     //Staff Actions
     const staffRoute = '/staff';
     this.app.post(`${staffRoute}`, staff.create);
+    this.app.get(`${staffRoute}`, staff.get);
   }
 
   listen(){
