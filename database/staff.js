@@ -33,7 +33,28 @@ const getStaff = new Promise((resolve, reject) => {
   });
 });
 
+const deleteStaff = ({id, token}) => {
+  return new Promise((resolve, reject) => {
+    authenticateAdmin(token).then((user) => {
+      connection.query(`DELETE FROM staff WHERE id = ${id}`, (error, rows, fields) => {
+        if(error){
+          reject(error);
+        }else{
+          getStaff.then((staff) => {
+            resolve(staff);
+          }).catch((error2) => {
+            reject(error2);
+          });
+        }
+      });
+    }).catch((error) => {
+      reject(error);
+    })
+  });
+}
+
 module.exports = {
   createStaff,
-  getStaff
+  getStaff,
+  deleteStaff
 }

@@ -31,6 +31,7 @@ class Server {
     const staffRoute = '/staff';
     this.app.post(`${staffRoute}`, staff.create);
     this.app.get(`${staffRoute}`, staff.get);
+    this.app.delete(`${staffRoute}`, staff.deleteAction);
   }
 
   listen(){
