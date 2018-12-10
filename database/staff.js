@@ -1,9 +1,9 @@
 const {connection} = require("./connections.js");
-const {authenticate} = require("./users.js");
+const {authenticate, authenticateAdmin} = require("./users.js");
 
 const createStaff = ({token, name, jobTitle}) => {
   return new Promise((resolve, reject) => {
-    authenticate(token).then((data) => {
+    authenticateAdmin(token).then((data) => {
         connection.query(`INSERT INTO staff (name, job_title) VALUES('${name}', '${jobTitle}')`, (error, rows, fields) => {
           if(error){
             reject(error);

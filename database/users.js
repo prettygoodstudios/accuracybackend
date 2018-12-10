@@ -8,12 +8,10 @@ const createUser = (email, password) => {
       if(err){
         reject(err);
       }else{
-        console.log(hash);
         connection.query(`INSERT INTO users (email, password) VALUES('${email}','${hash}');`, (error, rows, fields) => {
           if(error){
             reject(`Database Issue: ${error}`);
           }else{
-            console.log('Second Connection');
             connection.query(`SELECT * FROM users WHERE email = '${email}'`, (error, rows, fields) => {
               if(error){
                 reject(`Select Issue: ${error}`);
@@ -79,7 +77,7 @@ const authenticate = (token) => {
 const getUser = (token) => {
   return new Promise((resolve, reject) => {
       authenticate(token).then((session) => {
-          connection.query(`SELECT id, email FROM users WHERE id = ${session.user_id}`, (error, rows, fields) => {
+          connection.query(`SELECT id, email, role FROM users WHERE id = ${session.user_id}`, (error, rows, fields) => {
             if(error){
               reject(error);
             }else{
@@ -92,9 +90,24 @@ const getUser = (token) => {
   })
 }
 
+const authenticateAdmin = (token) => {
+  return new Promise((resolve, reject) => {
+    getUser(token).then((user) => {
+      if(user.role === "admin"){
+        resolve(user);
+      }else{
+        reject("You must be an admin to perform this action.");
+      }
+    }).catch((error) => {
+      reject(error);
+    });
+  });
+}
+
 module.exports = {
   createUser,
   createSession,
   authenticate,
-  getUser
+  getUser,
+  authenticateAdmin
 }
