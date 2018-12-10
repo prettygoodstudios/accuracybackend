@@ -76,8 +76,25 @@ const authenticate = (token) => {
   });
 }
 
+const getUser = (token) => {
+  return new Promise((resolve, reject) => {
+      authenticate(token).then((session) => {
+          connection.query(`SELECT id, email FROM users WHERE id = ${session.user_id}`, (error, rows, fields) => {
+            if(error){
+              reject(error);
+            }else{
+              resolve(rows[0]);
+            }
+          });
+      }).catch((e) => {
+        reject(e);
+      });
+  })
+}
+
 module.exports = {
   createUser,
   createSession,
-  authenticate
+  authenticate,
+  getUser
 }
