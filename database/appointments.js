@@ -1,12 +1,21 @@
-const {connection} = require("./connections.js");
+const cn = require("./connections.js");
+const pool = cn.connection;
 const {authenticate, getUser} = require("./users.js");
 
 const getAppointments = new Promise((resolve, reject) => {
-  connection.query('SELECT * FROM appointments;', (error, rows, fields) => {
-    if(error){
-      reject(error);
+  pool.getConnection((err, connection) => {
+    if(err){
+      pool.releaseConnection(connection);
+      reject(err);
     }else{
-      resolve(rows);
+      connection.query('SELECT * FROM appointments;', (error, rows, fields) => {
+        pool.releaseConnection(connection);
+        if(error){
+          reject(error);
+        }else{
+          resolve(rows);
+        }
+      });
     }
   });
 });
@@ -14,14 +23,22 @@ const getAppointments = new Promise((resolve, reject) => {
 const createAppointments = ({company, time, staff_id, token}) => {
   return new Promise((resolve, reject) => {
     authenticate(token).then((session) => {
-      connection.query(`INSERT INTO appointments (company, time, staff_id, user_id) VALUES('${company}', '${time}', ${staff_id}, ${session.user_id})`, (error, rows, fields) => {
-        if(error){
-          reject(error);
+      pool.getConnection((err, connection) => {
+        if(err){
+          pool.releaseConnection(connection);
+          reject(err);
         }else{
-          getAppointments.then((appointments) => {
-            resolve(appointments);
-          }).catch((error2) => {
-            reject(error2);
+          connection.query(`INSERT INTO appointments (company, time, staff_id, user_id) VALUES('${company}', '${time}', ${staff_id}, ${session.user_id})`, (error, rows, fields) => {
+            pool.releaseConnection(connection);
+            if(error){
+              reject(error);
+            }else{
+              getAppointments.then((appointments) => {
+                resolve(appointments);
+              }).catch((error2) => {
+                reject(error2);
+              });
+            }
           });
         }
       });
@@ -33,6 +50,7 @@ const createAppointments = ({company, time, staff_id, token}) => {
 
 const deleteAppointment = ({token, id}) => {
   return new Promise((resolve, reject) => {
+    const connection = pool;
     getUser(token).then((user) => {
       connection.query(`SELECT * FROM appointments WHERE id = ${id};`, (error, rows, fields) => {
         if(error){
