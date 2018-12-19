@@ -4,7 +4,7 @@ const create = (req, res) => {
   const token = req.queryString('token');
   const jobTitle = req.queryString('jobTitle');
   const name = req.queryString('name');
-  if(name != "" || jobTitle != "" || jobTitle == undefined || name == undefined){
+  if(name !== "" && jobTitle !== "" && name !== undefined && jobTitle !== undefined){
     createStaff({token, name, jobTitle}).then((staff) => {
       res.send(staff);
     }).catch((error) => {

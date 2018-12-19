@@ -1,4 +1,4 @@
-const {connection, dbQuery} = require("./connections.js");
+const {dbQuery} = require("./connections.js");
 const bcrypt = require('bcrypt');
 
 

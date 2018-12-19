@@ -22,7 +22,6 @@ const getAppointments = new Promise((resolve, reject) => {
   const x = new Date();
   const UTCtime = (x.getTime() + x.getTimezoneOffset()*60*1000);
   const weekAgo = new Date(UTCtime - 60*60*1000*24*7);
-  console.log(weekAgo.toISOString().slice(0, 19).replace('T', ' '));
   dbQuery(`SELECT * FROM appointments WHERE time > STR_TO_DATE('${weekAgo.toISOString().slice(0, 19).replace('T', ' ')}', '%Y-%m-%d %H:%i:%s');`, (error, rows, fields) => {
     if(error){
       reject(error);
