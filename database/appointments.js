@@ -1,21 +1,33 @@
-const cn = require("./connections.js");
-const pool = cn.connection;
+const {dbQuery} = require("./connections.js");
 const {authenticate, getUser} = require("./users.js");
 
-const getAppointments = new Promise((resolve, reject) => {
-  pool.getConnection((err, connection) => {
-    if(err){
-      pool.releaseConnection(connection);
-      reject(err);
+
+const commitAppointments = (error) => {
+  return new Promise((resolve, reject) => {
+    if(error){
+      reject(error);
     }else{
-      connection.query('SELECT * FROM appointments;', (error, rows, fields) => {
-        pool.releaseConnection(connection);
-        if(error){
-          reject(error);
-        }else{
-          resolve(rows);
-        }
+      dbQuery('COMMIT', () => {
+        getAppointments.then((appointments) => {
+          resolve(appointments);
+        }).catch((error2) => {
+          reject(error2);
+        });
       });
+    }
+  });
+}
+
+const getAppointments = new Promise((resolve, reject) => {
+  const x = new Date();
+  const UTCtime = (x.getTime() + x.getTimezoneOffset()*60*1000);
+  const weekAgo = new Date(UTCtime - 60*60*1000*24*7);
+  console.log(weekAgo.toISOString().slice(0, 19).replace('T', ' '));
+  dbQuery(`SELECT * FROM appointments WHERE time > STR_TO_DATE('${weekAgo.toISOString().slice(0, 19).replace('T', ' ')}', '%Y-%m-%d %H:%i:%s');`, (error, rows, fields) => {
+    if(error){
+      reject(error);
+    }else{
+      resolve(rows);
     }
   });
 });
@@ -23,21 +35,15 @@ const getAppointments = new Promise((resolve, reject) => {
 const createAppointments = ({company, time, staff_id, token}) => {
   return new Promise((resolve, reject) => {
     authenticate(token).then((session) => {
-      pool.getConnection((err, connection) => {
-        if(err){
-          pool.releaseConnection(connection);
-          reject(err);
+      dbQuery(`INSERT INTO appointments (company, time, staff_id, user_id) VALUES('${company}', STR_TO_DATE('${time}', '%Y-%m-%d %H:%i:%s'), ${staff_id}, ${session.user_id});`, (error, rows, fields) => {
+        if(error){
+          reject({error, query: `INSERT INTO appointments (company, time, staff_id, user_id) VALUES('${company}', '${time}', ${staff_id}, ${session.user_id})`});
         }else{
-          connection.query(`INSERT INTO appointments (company, time, staff_id, user_id) VALUES('${company}', '${time}', ${staff_id}, ${session.user_id})`, (error, rows, fields) => {
-            pool.releaseConnection(connection);
-            if(error){
-              reject(error);
+          dbQuery('SELECT * FROM appointments ORDER BY id DESC;', (error2, rows2, fields) => {
+            if(error2){
+              reject(error2);
             }else{
-              getAppointments.then((appointments) => {
-                resolve(appointments);
-              }).catch((error2) => {
-                reject(error2);
-              });
+              resolve(rows2);
             }
           });
         }
@@ -50,23 +56,18 @@ const createAppointments = ({company, time, staff_id, token}) => {
 
 const deleteAppointment = ({token, id}) => {
   return new Promise((resolve, reject) => {
-    const connection = pool;
     getUser(token).then((user) => {
-      connection.query(`SELECT * FROM appointments WHERE id = ${id};`, (error, rows, fields) => {
+      dbQuery(`SELECT * FROM appointments WHERE id = ${id};`, (error, rows, fields) => {
         if(error){
           reject(error);
         }else{
           if(user.role === "admin" || user.id == rows[0].user_id){
-            connection.query(`DELETE FROM appointments WHERE id = ${id};`, (error2, rows2, fields) => {
-              if(error2){
-                reject(error2);
-              }else{
-                getAppointments.then((appointments) => {
-                  resolve(appointments);
-                }).catch((error3) => {
-                  reject(error3);
-                });
-              }
+            dbQuery(`DELETE FROM appointments WHERE id = ${id};`, (error2, rows2, fields) => {
+              commitAppointments(error2).then((appointments) => {
+                resolve(appointments);
+              }).catch((error) => {
+                reject(error);
+              });
             });
           }else{
             reject("It must be your own appointment inorder to cancel it.");
@@ -78,6 +79,7 @@ const deleteAppointment = ({token, id}) => {
     });
   });
 }
+
 
 module.exports = {
   getAppointments,

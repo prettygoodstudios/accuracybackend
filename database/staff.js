@@ -4,11 +4,11 @@ const {authenticate, authenticateAdmin} = require("./users.js");
 const createStaff = ({token, name, jobTitle}) => {
   return new Promise((resolve, reject) => {
     authenticateAdmin(token).then((data) => {
-        connection.query(`INSERT INTO staff (name, job_title) VALUES('${name}', '${jobTitle}')`, (error, rows, fields) => {
+        connection().query(`INSERT INTO staff (name, job_title) VALUES('${name}', '${jobTitle}')`, (error, rows, fields) => {
           if(error){
             reject(error);
           }else{
-            connection.query('SELECT * FROM staff', (error2, rows2, fields) => {
+            connection().query('SELECT * FROM staff', (error2, rows2, fields) => {
               if(error2){
                 reject(error2);
               }else{
@@ -24,7 +24,7 @@ const createStaff = ({token, name, jobTitle}) => {
 }
 
 const getStaff = new Promise((resolve, reject) => {
-  connection.query('SELECT * FROM staff;', (error, rows, fields) => {
+  connection().query('SELECT * FROM staff;', (error, rows, fields) => {
     if(error){
       reject(error);
     }else{
@@ -36,7 +36,7 @@ const getStaff = new Promise((resolve, reject) => {
 const deleteStaff = ({id, token}) => {
   return new Promise((resolve, reject) => {
     authenticateAdmin(token).then((user) => {
-      connection.query(`DELETE FROM staff WHERE id = ${id}`, (error, rows, fields) => {
+      connection().query(`DELETE FROM staff WHERE id = ${id}`, (error, rows, fields) => {
         if(error){
           reject(error);
         }else{
