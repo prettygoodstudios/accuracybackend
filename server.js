@@ -12,6 +12,11 @@ class Server {
     this.app = express();
     this.port = port;
     this.app.use(require('sanitize').middleware);
+    this.app.use(function(req, res, next){
+      res.header("Access-Control-Allow-Origin", "*");
+      res.header("Access-Control-Allow-Headers", "Content-Type");
+      next();
+    });
     this.setMap();
     this.listen();
   }
@@ -20,6 +25,7 @@ class Server {
     //Appointment Actions
     const appointmentRoute = '/appointments';
     this.app.get(`${appointmentRoute}`, appointments.get);
+    this.app.get(`${appointmentRoute}/mine`, appointments.getMine);
     this.app.post(`${appointmentRoute}`, appointments.create);
     this.app.delete(`${appointmentRoute}`, appointments.deleteAction);
     //Users Actions
@@ -41,7 +47,7 @@ class Server {
 
 }
 
-const app = new Server({port: 3000}).app;
+const app = new Server({port: 3010}).app;
 
 module.exports = {
   app

@@ -28,9 +28,9 @@ const newSession = (req, res) => {
   const email = req.queryString('email');
   const password = req.queryString('password');
   createSession(email, password).then((token) => {
-    res.send(token);
+    res.send({token: token});
   }).catch((error) => {
-    res.send(error);
+    res.send({error: error});
   });
 }
 

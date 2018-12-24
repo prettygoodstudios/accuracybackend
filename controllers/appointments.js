@@ -3,7 +3,7 @@ const {app} = require("../server.js");
 
 //Database Imports
 const appointmentsQueries = require("../database/appointments.js");
-const {getAppointments, createAppointments, deleteAppointment} = appointmentsQueries;
+const {getAppointments, createAppointments, deleteAppointment, getMyAppointments} = appointmentsQueries;
 
 
 const get = (req, res) => {
@@ -36,8 +36,18 @@ const deleteAction = (req, res) => {
   });
 }
 
+const getMine = (req, res) => {
+  const token = req.queryString('token');
+  getMyAppointments(token).then((appointments) => {
+    res.send(appointments);
+  }).catch((e) => {
+    res.send(e);
+  })
+}
+
 module.exports = {
   get,
   create,
-  deleteAction
+  deleteAction,
+  getMine
 }

@@ -1,5 +1,5 @@
 const {dbQuery} = require("./connections.js");
-const {authenticate, getUser} = require("./users.js");
+const {authenticate, getUser, authenticateAdmin} = require("./users.js");
 
 
 const commitAppointments = (error) => {
@@ -22,7 +22,7 @@ const getAppointments = new Promise((resolve, reject) => {
   const x = new Date();
   const UTCtime = (x.getTime() + x.getTimezoneOffset()*60*1000);
   const weekAgo = new Date(UTCtime - 60*60*1000*24*7);
-  dbQuery(`SELECT * FROM appointments WHERE time > STR_TO_DATE('${weekAgo.toISOString().slice(0, 19).replace('T', ' ')}', '%Y-%m-%d %H:%i:%s');`, (error, rows, fields) => {
+  dbQuery(`SELECT time, staff_id FROM appointments WHERE time > STR_TO_DATE('${weekAgo.toISOString().slice(0, 19).replace('T', ' ')}', '%Y-%m-%d %H:%i:%s');`, (error, rows, fields) => {
     if(error){
       reject(error);
     }else{
@@ -31,6 +31,32 @@ const getAppointments = new Promise((resolve, reject) => {
   });
 });
 
+const getMyAppointments = (token) => {
+  return new Promise((resolve, reject) => {
+    authenticate(token).then((session) => {
+      authenticateAdmin(token).then((admin) => {
+        dbQuery(`SELECT * FROM appointments;`, (error, rows, fields) => {
+          if(error){
+            reject(error);
+          }else{
+            resolve(rows);
+          }
+        });
+      }).catch((e) => {
+        dbQuery(`SELECT * FROM appointments WHERE user_id = ${session.user_id}`, (error, rows, fields) => {
+          if(error){
+            reject(error);
+          }else{
+            resolve(rows);
+          }
+        });
+      });
+    }).catch((e) => {
+      reject(e);
+    });
+  });
+}
+
 const createAppointments = ({company, time, staff_id, token}) => {
   return new Promise((resolve, reject) => {
     authenticate(token).then((session) => {
@@ -38,7 +64,7 @@ const createAppointments = ({company, time, staff_id, token}) => {
         if(error){
           reject({error, query: `INSERT INTO appointments (company, time, staff_id, user_id) VALUES('${company}', '${time}', ${staff_id}, ${session.user_id})`});
         }else{
-          dbQuery('SELECT * FROM appointments ORDER BY id DESC;', (error2, rows2, fields) => {
+          dbQuery('SELECT time, staff_id FROM appointments ORDER BY id DESC;', (error2, rows2, fields) => {
             if(error2){
               reject(error2);
             }else{
@@ -83,5 +109,6 @@ const deleteAppointment = ({token, id}) => {
 module.exports = {
   getAppointments,
   createAppointments,
-  deleteAppointment
+  deleteAppointment,
+  getMyAppointments
 }
