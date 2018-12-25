@@ -33,6 +33,40 @@ const getStaff = new Promise((resolve, reject) => {
   });
 });
 
+const editStaff = ({name, jobTitle, id, token}) => {
+  return new Promise((resolve, reject) => {
+    authenticateAdmin(token).then((session) => {
+      let params = [];
+      let paramQuery = '';
+      if(name){
+        params.push(name);
+        paramQuery += 'name = ?';
+      }
+      if(jobTitle){
+        params.push(jobTitle);
+        if(name){
+          paramQuery += ',';
+        }
+        paramQuery += ' job_title = ?';
+      }
+      params.push(id);
+      dbQuery(`UPDATE staff SET ${paramQuery} WHERE id = ?;`, params, (error, rows, fields) => {
+        if(error){
+          reject(error);
+        }else{
+          getStaff.then((staff) => {
+            resolve(staff);
+          }).catch((error2) => {
+            reject(error2);
+          });
+        }
+      });
+    }).catch((error) => {
+      reject(error);
+    });
+  });
+}
+
 const deleteStaff = ({id, token}) => {
   return new Promise((resolve, reject) => {
     authenticateAdmin(token).then((user) => {
@@ -49,12 +83,13 @@ const deleteStaff = ({id, token}) => {
       });
     }).catch((error) => {
       reject(error);
-    })
+    });
   });
 }
 
 module.exports = {
   createStaff,
   getStaff,
-  deleteStaff
+  deleteStaff,
+  editStaff
 }

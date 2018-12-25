@@ -1,4 +1,4 @@
-const {createStaff, getStaff, deleteStaff} = require("../database/staff.js");
+const {createStaff, getStaff, deleteStaff, editStaff} = require("../database/staff.js");
 
 const create = (req, res) => {
   const token = req.queryString('token');
@@ -33,8 +33,21 @@ const deleteAction = (req, res) => {
   });
 }
 
+const edit = (req, res) => {
+  const token = req.queryString('token');
+  const id = req.queryString('id');
+  const name = req.queryString('name');
+  const jobTitle = req.queryString('jobTitle');
+  editStaff({token, id, name, jobTitle}).then((staff) => {
+    res.send(staff);
+  }).catch((error) => {
+    res.send(error);
+  });
+}
+
 module.exports = {
   create,
   get,
-  deleteAction
+  deleteAction,
+  edit
 }
