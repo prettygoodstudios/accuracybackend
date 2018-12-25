@@ -46,6 +46,7 @@ class Server {
     const reviewsRoute = '/reviews';
     this.app.post(`${reviewsRoute}`, reviews.create);
     this.app.get(`${reviewsRoute}`, reviews.get);
+    this.app.delete(`${reviewsRoute}`, reviews.deleteAction);
   }
 
   listen(){

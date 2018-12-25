@@ -32,7 +32,44 @@ const createReview = ({score, message, token}) => {
   });
 }
 
+const deleteReview = ({token, id}) => {
+  return new Promise((resolve, reject) => {
+    if(!id){
+      authenticate(token).then((session) => {
+        dbQuery(`DELETE FROM reviews WHERE user_id = ?`, [session.user_id], (error, rows, fields) => {
+          if(error){
+            reject(error);
+          }else{
+            getReveiws.then((reviews) => {
+              resolve(reviews);
+            }).catch((e2) => {
+              reject(e2);
+            });
+          }
+        });
+      });
+    }else{
+      authenticateAdmin(token).then((session) => {
+        dbQuery('DELETE FROM reviews WHERE id = ?;', [id], (error, rows, fields) => {
+          if(error){
+            reject(error);
+          }else{
+            getReveiws.then((reviews) => {
+              resolve(reviews);
+            }).catch((error2) => {
+              reject(error2);
+            });
+          }
+        });
+      }).catch((error) => {
+        reject(error);
+      });
+    }
+  });
+}
+
 module.exports = {
   getReveiws,
-  createReview
+  createReview,
+  deleteReview
 }
