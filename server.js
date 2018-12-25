@@ -4,6 +4,7 @@ const express = require('express');
 const appointments = require("./controllers/appointments");
 const users = require("./controllers/users");
 const staff = require("./controllers/staff");
+const reviews = require("./controllers/reviews");
 
 
 class Server {
@@ -41,6 +42,10 @@ class Server {
     this.app.post(`${staffRoute}/edit`, staff.edit);
     this.app.get(`${staffRoute}`, staff.get);
     this.app.delete(`${staffRoute}`, staff.deleteAction);
+    //Reviews Actions
+    const reviewsRoute = '/reviews';
+    this.app.post(`${reviewsRoute}`, reviews.create);
+    this.app.get(`${reviewsRoute}`, reviews.get);
   }
 
   listen(){
