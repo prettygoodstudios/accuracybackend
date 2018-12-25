@@ -8,11 +8,11 @@ const createUser = (email, password) => {
       if(err){
         reject(err);
       }else{
-        dbQuery(`INSERT INTO users (email, password) VALUES('${email}','${hash}');`, (error, rows, fields) => {
+        dbQuery(`INSERT INTO users (email, password) VALUES(?, ?);`, [email, hash], (error, rows, fields) => {
           if(error){
             reject(`Database Issue: ${error}`);
           }else{
-            dbQuery(`SELECT * FROM users WHERE email = '${email}'`, (error, rows, fields) => {
+            dbQuery(`SELECT * FROM users WHERE email = ?`, [email], (error, rows, fields) => {
               if(error){
                 reject(`Select Issue: ${error}`);
               }else{
@@ -28,7 +28,7 @@ const createUser = (email, password) => {
 
 const createSession = (email, password) => {
   return new Promise((resolve, reject) => {
-      dbQuery(`SELECT * FROM users WHERE email = '${email}'`, (error, rows, fields) => {
+      dbQuery(`SELECT * FROM users WHERE email = ?`, [email], (error, rows, fields) => {
         if(error){
           reject(`Database Issue: ${error}`);
         }else{
@@ -51,7 +51,7 @@ const createSession = (email, password) => {
 
 const authenticate = (token) => {
   return new Promise((resolve, reject) => {
-    dbQuery(`SELECT * FROM sessions WHERE token = '${token}'`, (error, rows, fields) => {
+    dbQuery(`SELECT * FROM sessions WHERE token = ?`, [token], (error, rows, fields) => {
       if(error){
         reject(`Database Issue: ${error}`);
       }else{
@@ -59,7 +59,7 @@ const authenticate = (token) => {
         const UTCtime = (x.getTime() + x.getTimezoneOffset()*60*1000);
         const elapsedTime = rows[0] ? (UTCtime - rows[0].expiration.getTime())/(1000*60) : 3000;
         if(rows[0] && rows[0].token == token && elapsedTime < 60){
-          dbQuery(`UPDATE sessions SET expiration = '${new Date().toISOString().slice(0, 19).replace('T', ' ')}' WHERE token = '${token}'`, (error2, rows2, fields) => {
+          dbQuery(`UPDATE sessions SET expiration = ? WHERE token = ?`, [new Date().toISOString().slice(0, 19).replace('T', ' '), token], (error2, rows2, fields) => {
             if(error2){
               reject(error2);
             }else{
@@ -77,7 +77,7 @@ const authenticate = (token) => {
 const getUser = (token) => {
   return new Promise((resolve, reject) => {
       authenticate(token).then((session) => {
-          dbQuery(`SELECT id, email, role FROM users WHERE id = ${session.user_id}`, (error, rows, fields) => {
+          dbQuery(`SELECT id, email, role FROM users WHERE id = ?`, [session.user_id], (error, rows, fields) => {
             if(error){
               reject(error);
             }else{

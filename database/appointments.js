@@ -34,12 +34,33 @@ const getAppointments = new Promise((resolve, reject) => {
 const editAppointment = ({token, company, time, staff_id, id}) => {
   return new Promise((resolve, reject) => {
     authenticate(token).then((session) => {
-      dbQuery(`SELECT * FROM appointments WHERE id = ${id}`, (error, rows, fields) => {
+      dbQuery(`SELECT * FROM appointments WHERE id = ?`, [id], (error, rows, fields) => {
         if(error){
           reject(error);
         }else{
           if(session.user_id == rows[0].user_id){
-            dbQuery(`UPDATE appointments SET ${company ? "company = '"+company+"'" : ""} ${time ? ", time = '"+time+"'" : ""} ${staff_id ? ", staff_id = "+staff_id : ""} where id = ${id};`, (error3, rows, fields) => {
+            let params = [];
+            let paramQuery = '';
+            if(company){
+              params.push(company);
+              paramQuery += "company = ?";
+            }
+            if(time){
+              params.push(time);
+              if(company){
+                paramQuery += ",";
+              }
+              paramQuery += " time = ?";
+            }
+            if(staff_id){
+              params.push(staff_id);
+              if(company || time){
+                paramQuery += ",";
+              }
+              paramQuery += " staff_id = ?";
+            }
+            params.push(id);
+            dbQuery(`UPDATE appointments SET ${paramQuery} where id = ?;`, params, (error3, rows, fields) => {
               if(error3){
                 reject(error3);
               }else{
@@ -52,7 +73,28 @@ const editAppointment = ({token, company, time, staff_id, id}) => {
             });
           }else{
             authenticateAdmin(token).then((admin) => {
-              dbQuery(`UPDATE appointments SET ${company ? "company = '"+company+"'" : ""} ${time ? ", time = '"+time+"'" : ""} ${staff_id ? ", staff_id = "+staff_id : ""} where id = ${id};`, (error3, rows, fields) => {
+              let params = [];
+              let paramQuery = '';
+              if(company){
+                params.push(company);
+                paramQuery += "company = ?";
+              }
+              if(time){
+                params.push(time);
+                if(company){
+                  paramQuery += ",";
+                }
+                paramQuery += " time = ?";
+              }
+              if(staff_id){
+                params.push(staff_id);
+                if(company || time){
+                  paramQuery += ",";
+                }
+                paramQuery += " staff_id = ?";
+              }
+              params.push(id);
+              dbQuery(`UPDATE appointments SET ${paramQuery} where id = ?;`, params, (error3, rows, fields) => {
                 if(error3){
                   reject(error3);
                 }else{
@@ -87,7 +129,7 @@ const getMyAppointments = (token) => {
           }
         });
       }).catch((e) => {
-        dbQuery(`SELECT * FROM appointments WHERE user_id = ${session.user_id}`, (error, rows, fields) => {
+        dbQuery(`SELECT * FROM appointments WHERE user_id = ?`, [session.user_id], (error, rows, fields) => {
           if(error){
             reject(error);
           }else{
@@ -104,7 +146,7 @@ const getMyAppointments = (token) => {
 const createAppointments = ({company, time, staff_id, token}) => {
   return new Promise((resolve, reject) => {
     authenticate(token).then((session) => {
-      dbQuery(`INSERT INTO appointments (company, time, staff_id, user_id) VALUES('${company}', STR_TO_DATE('${time}', '%Y-%m-%d %H:%i:%s'), ${staff_id}, ${session.user_id});`, (error, rows, fields) => {
+      dbQuery(`INSERT INTO appointments (company, time, staff_id, user_id) VALUES(?, STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s'), ?, ?);`, [company, time, staff_id, session.user_id], (error, rows, fields) => {
         if(error){
           reject({error, query: `INSERT INTO appointments (company, time, staff_id, user_id) VALUES('${company}', '${time}', ${staff_id}, ${session.user_id})`});
         }else{
@@ -126,12 +168,12 @@ const createAppointments = ({company, time, staff_id, token}) => {
 const deleteAppointment = ({token, id}) => {
   return new Promise((resolve, reject) => {
     getUser(token).then((user) => {
-      dbQuery(`SELECT * FROM appointments WHERE id = ${id};`, (error, rows, fields) => {
+      dbQuery(`SELECT * FROM appointments WHERE id = ?;`, [id], (error, rows, fields) => {
         if(error){
           reject(error);
         }else{
           if(user.role === "admin" || user.id == rows[0].user_id){
-            dbQuery(`DELETE FROM appointments WHERE id = ${id};`, (error2, rows2, fields) => {
+            dbQuery(`DELETE FROM appointments WHERE id = id;`, [id], (error2, rows2, fields) => {
               commitAppointments(error2).then((appointments) => {
                 resolve(appointments);
               }).catch((error) => {

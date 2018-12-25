@@ -4,7 +4,7 @@ const {authenticate, authenticateAdmin} = require("./users.js");
 const createStaff = ({token, name, jobTitle}) => {
   return new Promise((resolve, reject) => {
     authenticateAdmin(token).then((data) => {
-        dbQuery(`INSERT INTO staff (name, job_title) VALUES('${name}', '${jobTitle}')`, (error, rows, fields) => {
+        dbQuery(`INSERT INTO staff (name, job_title) VALUES(?, ?)`, [name, jobTitle], (error, rows, fields) => {
           if(error){
             reject(error);
           }else{
@@ -36,7 +36,7 @@ const getStaff = new Promise((resolve, reject) => {
 const deleteStaff = ({id, token}) => {
   return new Promise((resolve, reject) => {
     authenticateAdmin(token).then((user) => {
-      dbQuery(`DELETE FROM staff WHERE id = ${id}`, (error, rows, fields) => {
+      dbQuery(`DELETE FROM staff WHERE id = ?;`, [id], (error, rows, fields) => {
         if(error){
           reject(error);
         }else{
