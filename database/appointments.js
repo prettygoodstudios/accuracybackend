@@ -31,6 +31,50 @@ const getAppointments = new Promise((resolve, reject) => {
   });
 });
 
+const editAppointment = ({token, company, time, staff_id, id}) => {
+  return new Promise((resolve, reject) => {
+    authenticate(token).then((session) => {
+      dbQuery(`SELECT * FROM appointments WHERE id = ${id}`, (error, rows, fields) => {
+        if(error){
+          reject(error);
+        }else{
+          if(session.user_id == rows[0].user_id){
+            dbQuery(`UPDATE appointments SET ${company ? "company = '"+company+"'" : ""} ${time ? ", time = '"+time+"'" : ""} ${staff_id ? ", staff_id = "+staff_id : ""} where id = ${id};`, (error3, rows, fields) => {
+              if(error3){
+                reject(error3);
+              }else{
+                getMyAppointments(token).then((appointments) => {
+                  resolve(appointments);
+                }).catch((error4) => {
+                  reject(error4);
+                });
+              }
+            });
+          }else{
+            authenticateAdmin(token).then((admin) => {
+              dbQuery(`UPDATE appointments SET ${company ? "company = '"+company+"'" : ""} ${time ? ", time = '"+time+"'" : ""} ${staff_id ? ", staff_id = "+staff_id : ""} where id = ${id};`, (error3, rows, fields) => {
+                if(error3){
+                  reject(error3);
+                }else{
+                  getMyAppointments(token).then((appointments) => {
+                    resolve(appointments);
+                  }).catch((error4) => {
+                    reject(error4);
+                  });
+                }
+              });
+            }).catch((error2) => {
+              reject(error2);
+            });
+          }
+        }
+      });
+    }).catch((error) => {
+      reject(error);
+    })
+  });
+}
+
 const getMyAppointments = (token) => {
   return new Promise((resolve, reject) => {
     authenticate(token).then((session) => {
@@ -110,5 +154,6 @@ module.exports = {
   getAppointments,
   createAppointments,
   deleteAppointment,
-  getMyAppointments
+  getMyAppointments,
+  editAppointment
 }

@@ -26,6 +26,7 @@ class Server {
     const appointmentRoute = '/appointments';
     this.app.get(`${appointmentRoute}`, appointments.get);
     this.app.get(`${appointmentRoute}/mine`, appointments.getMine);
+    this.app.post(`${appointmentRoute}/edit`, appointments.edit);
     this.app.post(`${appointmentRoute}`, appointments.create);
     this.app.delete(`${appointmentRoute}`, appointments.deleteAction);
     //Users Actions
