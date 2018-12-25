@@ -1,4 +1,4 @@
-const {getReveiws, createReview, deleteReview} = require('../database/reviews');
+const {getReveiws, createReview, deleteReview, editReview} = require('../database/reviews');
 
 const get = (req, res) => {
   getReveiws.then((reviews) => {
@@ -29,8 +29,21 @@ const deleteAction = (req, res) => {
   });
 }
 
+const edit = (req, res) => {
+  const token = req.queryString('token');
+  const id = req.queryString('id');
+  const score = req.queryString('score');
+  const message = req.queryString('message');
+  editReview({token, id, score, message}).then((reviews) => {
+    res.send(reviews);
+  }).catch((e) => {
+    res.send(e);
+  });
+}
+
 module.exports = {
   get,
   create,
-  deleteAction
+  deleteAction,
+  edit
 }

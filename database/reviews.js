@@ -68,8 +68,75 @@ const deleteReview = ({token, id}) => {
   });
 }
 
+const editReview = ({token, id, score, message}) => {
+  return new Promise((resolve, reject) => {
+    if(!id){
+      authenticate(token).then((session) => {
+        let params = [];
+        let paramQuery = '';
+        if(score){
+          params.push(score);
+          paramQuery += 'score = ?';
+        }
+        if(message){
+          params.push(message);
+          if(score){
+            paramQuery += ', ';
+          }
+          paramQuery += 'message = ?';
+        }
+        params.push(session.user_id)
+        dbQuery(`UPDATE reviews SET ${paramQuery} WHERE user_id = ?;`, params, (error, rows, fields) => {
+          if(error){
+            reject(error);
+          }else{
+            getReveiws.then((reviews) => {
+              resolve(reviews);
+            }).catch((e2) => {
+              reject(e2);
+            });
+          }
+        });
+      }).catch((error) => {
+        reject(error);
+      });
+    }else{
+      authenticateAdmin(token).then((session) => {
+        let params = [];
+        let paramQuery = '';
+        if(score){
+          params.push(score);
+          paramQuery += 'score = ?';
+        }
+        if(message){
+          params.push(message);
+          if(score){
+            paramQuery += ', ';
+          }
+          paramQuery += 'message = ?';
+        }
+        params.push(id)
+        dbQuery(`UPDATE reviews SET ${paramQuery} WHERE id = ?;`, params, (error, rows, fields) => {
+          if(error){
+            reject(error);
+          }else{
+            getReveiws.then((reviews) => {
+              resolve(reviews);
+            }).catch((e2) => {
+              reject(e2);
+            });
+          }
+        });
+      }).catch((error) => {
+        reject(error);
+      });
+    }
+  });
+}
+
 module.exports = {
   getReveiws,
   createReview,
-  deleteReview
+  deleteReview,
+  editReview
 }
