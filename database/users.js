@@ -67,7 +67,7 @@ const authenticate = (token) => {
             }
           });
         }else{
-          reject('Invalid Token');
+          reject({error: 'Invalid Token'});
         }
       }
     });
@@ -96,7 +96,7 @@ const authenticateAdmin = (token) => {
       if(user.role === "admin"){
         resolve(user);
       }else{
-        reject("You must be an admin to perform this action.");
+        reject({error: "You must be an admin to perform this action."});
       }
     }).catch((error) => {
       reject(error);

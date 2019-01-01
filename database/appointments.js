@@ -22,7 +22,7 @@ const getAppointments = new Promise((resolve, reject) => {
   const x = new Date();
   const UTCtime = (x.getTime() + x.getTimezoneOffset()*60*1000);
   const weekAgo = new Date(UTCtime - 60*60*1000*24*7);
-  dbQuery(`SELECT time, staff_id FROM appointments WHERE time > STR_TO_DATE('${weekAgo.toISOString().slice(0, 19).replace('T', ' ')}', '%Y-%m-%d %H:%i:%s');`, (error, rows, fields) => {
+  dbQuery(`SELECT time, staff_id FROM appointments ORDER by id DESC;`, (error, rows, fields) => {
     if(error){
       reject(error);
     }else{
@@ -133,7 +133,11 @@ const getMyAppointments = (token) => {
           if(error){
             reject(error);
           }else{
-            resolve(rows);
+            getAppointments.then((appointments) => {
+              resolve(appointments.filter((a) => a.user_id != session.user_id).concat(rows));
+            }).catch((e3) => {
+              reject(e3);
+            });
           }
         });
       });
@@ -150,12 +154,10 @@ const createAppointments = ({company, time, staff_id, token}) => {
         if(error){
           reject({error, query: `INSERT INTO appointments (company, time, staff_id, user_id) VALUES('${company}', '${time}', ${staff_id}, ${session.user_id})`});
         }else{
-          dbQuery('SELECT time, staff_id FROM appointments ORDER BY id DESC;', (error2, rows2, fields) => {
-            if(error2){
-              reject(error2);
-            }else{
-              resolve(rows2);
-            }
+          getMyAppointments(token).then((appointments) => {
+            resolve(appointments);
+          }).catch((e2) => {
+            reject(e2);
           });
         }
       });
