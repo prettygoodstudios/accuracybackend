@@ -6,7 +6,7 @@ const createStaff = ({token, name, jobTitle}) => {
     authenticateAdmin(token).then((data) => {
         dbQuery(`INSERT INTO staff (name, job_title) VALUES(?, ?)`, [name, jobTitle], (error, rows, fields) => {
           if(error){
-            reject(error);
+            reject({error});
           }else{
             dbQuery('SELECT * FROM staff', (error2, rows2, fields) => {
               if(error2){
@@ -23,15 +23,17 @@ const createStaff = ({token, name, jobTitle}) => {
   });
 }
 
-const getStaff = new Promise((resolve, reject) => {
-  dbQuery('SELECT * FROM staff;', (error, rows, fields) => {
-    if(error){
-      reject(error);
-    }else{
-      resolve(rows);
-    }
+const getStaff = () => {
+  return new Promise((resolve, reject) => {
+    dbQuery('SELECT * FROM staff;', (error, rows, fields) => {
+      if(error){
+        reject({error});
+      }else{
+        resolve(rows);
+      }
+    });
   });
-});
+}
 
 const editStaff = ({name, jobTitle, id, token}) => {
   return new Promise((resolve, reject) => {
@@ -52,9 +54,9 @@ const editStaff = ({name, jobTitle, id, token}) => {
       params.push(id);
       dbQuery(`UPDATE staff SET ${paramQuery} WHERE id = ?;`, params, (error, rows, fields) => {
         if(error){
-          reject(error);
+          reject({error});
         }else{
-          getStaff.then((staff) => {
+          getStaff().then((staff) => {
             resolve(staff);
           }).catch((error2) => {
             reject(error2);
@@ -70,14 +72,20 @@ const editStaff = ({name, jobTitle, id, token}) => {
 const deleteStaff = ({id, token}) => {
   return new Promise((resolve, reject) => {
     authenticateAdmin(token).then((user) => {
-      dbQuery(`DELETE FROM staff WHERE id = ?;`, [id], (error, rows, fields) => {
-        if(error){
-          reject(error);
+      dbQuery('DELETE FROM appointments WHERE staff_id = ?', [id], (e1, r1, f1) => {
+        if(e1){
+          reject({error: e1});
         }else{
-          getStaff.then((staff) => {
-            resolve(staff);
-          }).catch((error2) => {
-            reject(error2);
+          dbQuery(`DELETE FROM staff WHERE id = ?;`, [id], (error, rows, fields) => {
+            if(error){
+              reject({error});
+            }else{
+              getStaff().then((staff) => {
+                resolve(staff);
+              }).catch((error2) => {
+                reject(error2);
+              });
+            }
           });
         }
       });

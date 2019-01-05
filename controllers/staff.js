@@ -16,7 +16,7 @@ const create = (req, res) => {
 }
 
 const get = (req, res) => {
-  getStaff.then((staff) => {
+  getStaff().then((staff) => {
     res.send(staff);
   }).catch((error) => {
     res.send(error);
@@ -38,11 +38,17 @@ const edit = (req, res) => {
   const id = req.queryString('id');
   const name = req.queryString('name');
   const jobTitle = req.queryString('jobTitle');
-  editStaff({token, id, name, jobTitle}).then((staff) => {
-    res.send(staff);
-  }).catch((error) => {
-    res.send(error);
-  });
+  if(name != "" && jobTitle != ""){
+    editStaff({token, id, name, jobTitle}).then((staff) => {
+      res.send(staff);
+    }).catch((error) => {
+      res.send(error);
+    });
+  }else{
+    res.send({
+      error: "Must provide both name and job title."
+    });
+  }
 }
 
 module.exports = {

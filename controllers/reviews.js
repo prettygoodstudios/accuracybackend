@@ -1,7 +1,7 @@
 const {getReveiws, createReview, deleteReview, editReview} = require('../database/reviews');
 
 const get = (req, res) => {
-  getReveiws.then((reviews) => {
+  getReveiws().then((reviews) => {
     res.send(reviews);
   }).catch((error) => {
     res.send(error);

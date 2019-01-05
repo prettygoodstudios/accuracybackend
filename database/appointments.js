@@ -8,7 +8,7 @@ const commitAppointments = (error) => {
       reject(error);
     }else{
       dbQuery('COMMIT', () => {
-        getAppointments.then((appointments) => {
+        getAppointments().then((appointments) => {
           resolve(appointments);
         }).catch((error2) => {
           reject(error2);
@@ -18,18 +18,22 @@ const commitAppointments = (error) => {
   });
 }
 
-const getAppointments = new Promise((resolve, reject) => {
-  const x = new Date();
-  const UTCtime = (x.getTime() + x.getTimezoneOffset()*60*1000);
-  const weekAgo = new Date(UTCtime - 60*60*1000*24*7);
-  dbQuery(`SELECT time, staff_id FROM appointments ORDER by id DESC;`, (error, rows, fields) => {
-    if(error){
-      reject(error);
-    }else{
-      resolve(rows);
-    }
+const getAppointments = () => {
+  return new Promise((resolve, reject) => {
+    const x = new Date();
+    const UTCtime = (x.getTime() + x.getTimezoneOffset()*60*1000);
+    const weekAgo = new Date(UTCtime - 60*60*1000*24*7);
+    dbQuery(`SELECT * FROM appointments WHERE id != ?;`, [-12000], (error, rows, fields) => {
+      if(error){
+        reject(error);
+      }else{
+        resolve(rows.map(a => { 
+          return {time: a.time, staff_id: a.staff_id};
+        }));
+      }
+    });
   });
-});
+}
 
 const editAppointment = ({token, company, time, staff_id, id}) => {
   return new Promise((resolve, reject) => {
@@ -133,7 +137,7 @@ const getMyAppointments = (token) => {
           if(error){
             reject(error);
           }else{
-            getAppointments.then((appointments) => {
+            getAppointments().then((appointments) => {
               resolve(appointments.filter((a) => a.user_id != session.user_id).concat(rows));
             }).catch((e3) => {
               reject(e3);

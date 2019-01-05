@@ -7,7 +7,7 @@ const {getAppointments, createAppointments, deleteAppointment, getMyAppointments
 
 
 const get = (req, res) => {
-  getAppointments.then((data) => {
+  getAppointments().then((data) => {
     res.send(data);
   }).catch((error) => {
     res.send(error);

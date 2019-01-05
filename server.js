@@ -41,7 +41,7 @@ class Server {
     this.app.post(`${staffRoute}`, staff.create);
     this.app.post(`${staffRoute}/edit`, staff.edit);
     this.app.get(`${staffRoute}`, staff.get);
-    this.app.delete(`${staffRoute}`, staff.deleteAction);
+    this.app.post(`${staffRoute}/delete`, staff.deleteAction);
     //Reviews Actions
     const reviewsRoute = '/reviews';
     this.app.post(`${reviewsRoute}`, reviews.create);
