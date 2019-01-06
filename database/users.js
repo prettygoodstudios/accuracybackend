@@ -10,11 +10,11 @@ const createUser = (email, password) => {
       }else{
         dbQuery(`INSERT INTO users (email, password) VALUES(?, ?);`, [email, hash], (error, rows, fields) => {
           if(error){
-            reject(`Database Issue: ${error}`);
+            reject({error: `Database Issue: ${error}`});
           }else{
             dbQuery(`SELECT * FROM users WHERE email = ?`, [email], (error, rows, fields) => {
               if(error){
-                reject(`Select Issue: ${error}`);
+                reject({error: `Select Issue: ${error}`});
               }else{
                 resolve(rows[0]);
               }
