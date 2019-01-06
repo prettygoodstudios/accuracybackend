@@ -29,7 +29,7 @@ class Server {
     this.app.get(`${appointmentRoute}/mine`, appointments.getMine);
     this.app.post(`${appointmentRoute}/edit`, appointments.edit);
     this.app.post(`${appointmentRoute}`, appointments.create);
-    this.app.delete(`${appointmentRoute}`, appointments.deleteAction);
+    this.app.post(`${appointmentRoute}/delete`, appointments.deleteAction);
     //Users Actions
     const usersRoute = '/users';
     this.app.post(`${usersRoute}`, users.create);

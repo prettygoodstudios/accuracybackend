@@ -176,23 +176,27 @@ const deleteAppointment = ({token, id}) => {
     getUser(token).then((user) => {
       dbQuery(`SELECT * FROM appointments WHERE id = ?;`, [id], (error, rows, fields) => {
         if(error){
-          reject(error);
+          reject({error});
         }else{
           if(user.role === "admin" || user.id == rows[0].user_id){
-            dbQuery(`DELETE FROM appointments WHERE id = id;`, [id], (error2, rows2, fields) => {
-              commitAppointments(error2).then((appointments) => {
-                resolve(appointments);
-              }).catch((error) => {
-                reject(error);
-              });
+            dbQuery(`DELETE FROM appointments WHERE id = ?;`, [id], (error2, rows2, fields) => {
+              if(error2){
+                reject({error: error2});
+              }else{
+                getMyAppointments(token).then((appointments) => {
+                  resolve(appointments);
+                }).catch((error) => {
+                  reject({error});
+                });
+              }
             });
           }else{
-            reject("It must be your own appointment inorder to cancel it.");
+            reject({error: "It must be your own appointment inorder to cancel it."});
           }
         }
       });
     }).catch((error) => {
-      reject(error);
+      reject({error});
     });
   });
 }
