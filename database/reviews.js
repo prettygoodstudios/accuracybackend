@@ -4,7 +4,7 @@ const {authenticate, authenticateAdmin} = require('./users.js');
 
 const getReveiws = () => {
   return new Promise((resolve, reject) => {
-    dbQuery('SELECT * FROM reviews ORDER BY id DESC;', (error, rows, fields) => {
+    dbQuery('SELECT r.*, u.email as email FROM reviews r JOIN users u ON r.user_id = u.id ORDER BY r.id DESC;', (error, rows, fields) => {
       if(error){
         reject({error});
       }else{
@@ -19,12 +19,12 @@ const createReview = ({score, message, token}) => {
     authenticate(token).then((session) => {
       dbQuery(`INSERT INTO reviews (score, message, user_id) VALUES(?, ?, ?)`, [score, message, session.user_id], (error, rows, fields) => {
         if(error){
-          reject(error);
+          reject({error});
         }else{
           getReveiws().then((reviews) => {
             resolve(reviews);
           }).catch((e2) => {
-            reject(e2);
+            reject({error: e2});
           });
         }
       });
