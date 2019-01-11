@@ -2,13 +2,13 @@ const {dbQuery} = require("./connections.js");
 const bcrypt = require('bcrypt');
 
 
-const createUser = (email, password) => {
+const createUser = (email, password, company) => {
   return new Promise((resolve, reject) => {
     bcrypt.hash(password, 10, function(err, hash) {
       if(err){
         reject(err);
       }else{
-        dbQuery(`INSERT INTO users (email, password) VALUES(?, ?);`, [email, hash], (error, rows, fields) => {
+        dbQuery(`INSERT INTO users (email, password, company) VALUES(?, ?, ?);`, [email, hash, company], (error, rows, fields) => {
           if(error){
             reject({error: `Database Issue: ${error}`});
           }else{

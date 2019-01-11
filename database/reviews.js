@@ -4,7 +4,7 @@ const {authenticate, authenticateAdmin} = require('./users.js');
 
 const getReveiws = () => {
   return new Promise((resolve, reject) => {
-    dbQuery('SELECT r.*, u.email as email FROM reviews r JOIN users u ON r.user_id = u.id ORDER BY r.id DESC;', (error, rows, fields) => {
+    dbQuery('SELECT r.*, u.company as company FROM reviews r JOIN users u ON r.user_id = u.id ORDER BY r.id DESC;', (error, rows, fields) => {
       if(error){
         reject({error});
       }else{

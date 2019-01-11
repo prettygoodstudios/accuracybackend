@@ -9,13 +9,18 @@ const {createUser, createSession, authenticate, getUser} = usersQueries;
 const create = (req, res) => {
   const email = req.queryString('email');
   const password = req.queryString('password');
+  const company = req.queryString('company');
   if(email.length > 3 && email.indexOf(".") != -1 && email.indexOf("@") != -1){
     if(password.length > 6){
-      createUser(email, password).then((data) => {
-        res.send(data);
-      }).catch((error) => {
-        res.send(error);
-      });
+      if(company.length > 3){
+        createUser(email, password, company).then((data) => {
+          res.send(data);
+        }).catch((error) => {
+          res.send(error);
+        });
+      }else{
+        res.send('Your company name must be atleast three characters.');
+      }
     }else{
       res.send('Password must be atleast 6 characters.');
     }
