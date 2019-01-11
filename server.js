@@ -50,6 +50,7 @@ class Server {
     this.app.post(`${reviewsRoute}/edit`, reviews.edit);
     this.app.get(`${reviewsRoute}`, reviews.get);
     this.app.delete(`${reviewsRoute}`, reviews.deleteAction);
+    this.app.post(`${reviewsRoute}/approve`, reviews.approve);
   }
 
   listen(){

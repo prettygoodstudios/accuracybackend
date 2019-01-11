@@ -136,9 +136,30 @@ const editReview = ({token, id, score, message}) => {
   });
 }
 
+const approveReview = (id, token) => {
+  return new Promise((resolve, reject) => {
+    authenticateAdmin(token).then(({data}) => {
+      dbQuery('UPDATE reviews SET approved = 1 WHERE id = ?;', [id], (error, rows, fields) => {
+        if(error){
+          reject({error});
+        }else{
+          getReveiws().then((reviews) => {
+            resolve(reviews);
+          }).catch((e2) => {
+            reject({error: e2});
+          });
+        }
+      });
+    }).catch((e) => {
+      reject({error: e});
+    });
+  });
+}
+
 module.exports = {
   getReveiws,
   createReview,
   deleteReview,
-  editReview
+  editReview,
+  approveReview
 }
