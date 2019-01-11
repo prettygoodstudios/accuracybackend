@@ -1,4 +1,6 @@
 const express = require('express');
+const dotenv = require('dotenv');
+dotenv.config();
 
 //Import Controllers
 const appointments = require("./controllers/appointments");
@@ -56,7 +58,7 @@ class Server {
 
 }
 
-const app = new Server({port: 3010}).app;
+const app = new Server({port: process.env.PORT}).app;
 
 module.exports = {
   app
