@@ -11,21 +11,21 @@ const create = (req, res) => {
   const password = req.queryString('password');
   const company = req.queryString('company');
   if(email.length > 3 && email.indexOf(".") != -1 && email.indexOf("@") != -1){
-    if(password.length > 6){
-      if(company.length > 3){
+    if(password.length >= 6 && password.match(/^(?=.*[a-zA-Z])(?=.*[0-9])/)){
+      if(company.length >= 3){
         createUser(email, password, company).then((data) => {
           res.send(data);
         }).catch((error) => {
           res.send(error);
         });
       }else{
-        res.send('Your company name must be atleast three characters.');
+        res.send({error: 'Your company name must be atleast three characters.'});
       }
     }else{
-      res.send('Password must be atleast 6 characters.');
+      res.send({error: 'Password must be atleast 6 characters and contain numbers and letters.'});
     }
   }else{
-    res.send('You must enter in a valid email.');
+    res.send({error: 'You must enter in a valid email.'});
   }
 }
 

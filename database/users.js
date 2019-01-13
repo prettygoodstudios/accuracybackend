@@ -42,7 +42,7 @@ const createSession = (email, password) => {
               }
             });
           }else{
-            reject('Incorrect Password');
+            reject('Incorrect password or email');
           }
         }
       });
@@ -67,7 +67,7 @@ const authenticate = (token) => {
             }
           });
         }else{
-          reject({error: 'Invalid Token'});
+          reject({error: 'Your session has expired'});
         }
       }
     });
