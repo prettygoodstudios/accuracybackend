@@ -12,7 +12,7 @@ const createUser = (email, password, company) => {
           if(error){
             reject({error: `Database Issue: ${error}`});
           }else{
-            dbQuery(`SELECT * FROM users WHERE email = ?`, [email], (error, rows, fields) => {
+            dbQuery(`SELECT id, email, role FROM users WHERE email = ?`, [email], (error, rows, fields) => {
               if(error){
                 reject({error: `Select Issue: ${error}`});
               }else{

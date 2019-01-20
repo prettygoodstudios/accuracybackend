@@ -15,6 +15,8 @@ class Server {
     this.app = express();
     this.port = port;
     this.app.use(require('sanitize').middleware);
+    this.app.use(express.urlencoded());
+    this.app.use(express.json());  
     this.app.use(function(req, res, next){
       res.header("Access-Control-Allow-Origin", "*");
       res.header("Access-Control-Allow-Headers", "Content-Type");

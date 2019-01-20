@@ -7,9 +7,9 @@ const {createUser, createSession, authenticate, getUser} = usersQueries;
 
 
 const create = (req, res) => {
-  const email = req.queryString('email');
-  const password = req.queryString('password');
-  const company = req.queryString('company');
+  const email = req.body.email;
+  const password = req.body.password;
+  const company = req.body.company;
   if(email.length > 3 && email.indexOf(".") != -1 && email.indexOf("@") != -1){
     if(password.length >= 6 && password.match(/^(?=.*[a-zA-Z])(?=.*[0-9])/)){
       if(company.length >= 3){
@@ -30,8 +30,8 @@ const create = (req, res) => {
 }
 
 const newSession = (req, res) => {
-  const email = req.queryString('email');
-  const password = req.queryString('password');
+  const email = req.body.email;
+  const password = req.body.password;
   createSession(email, password).then((token) => {
     res.send({token: token});
   }).catch((error) => {
@@ -40,7 +40,7 @@ const newSession = (req, res) => {
 }
 
 const authenticateSession = (req, res) => {
-  const token = req.queryString('token');
+  const token = req.body.token;
   authenticate(token).then((data) => {
     res.send(data);
   }).catch((error) => {
@@ -49,7 +49,7 @@ const authenticateSession = (req, res) => {
 }
 
 const get  = (req, res) => {
-  const token = req.queryString('token');
+  const token = req.queryString("token");
   getUser(token).then((user) => {
     res.send(user);
   }).catch((error) => {
