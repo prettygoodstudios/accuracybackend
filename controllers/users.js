@@ -57,9 +57,17 @@ const get  = (req, res) => {
   });
 }
 
+const sendEmail = (req, res) => {
+  const message  = req.queryString("message");
+  res.send({
+    status: "sent"
+  });
+}
+
 module.exports = {
   create,
   newSession,
   authenticateSession,
-  get
+  get,
+  sendEmail
 }

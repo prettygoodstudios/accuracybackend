@@ -40,6 +40,7 @@ class Server {
     this.app.get(`${usersRoute}`, users.get);
     this.app.post(`${usersRoute}/session`, users.newSession);
     this.app.post(`${usersRoute}/authenticate`, users.authenticateSession);
+    this.app.post('/sendemail', users.sendEmail);
     //Staff Actions
     const staffRoute = '/staff';
     this.app.post(`${staffRoute}`, staff.create);

@@ -10,7 +10,11 @@ const createUser = (email, password, company) => {
       }else{
         dbQuery(`INSERT INTO users (email, password, company) VALUES(?, ?, ?);`, [email, hash, company], (error, rows, fields) => {
           if(error){
-            reject({error: `Database Issue: ${error}`});
+            if(error.toString().indexOf("Duplicate") != -1){
+              reject({error: `Email already in use`});
+            }else{
+              reject({error: `Database Issue: ${error}`});
+            }
           }else{
             dbQuery(`SELECT id, email, role FROM users WHERE email = ?`, [email], (error, rows, fields) => {
               if(error){
