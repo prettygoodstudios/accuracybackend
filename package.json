@@ -19,6 +19,7 @@
     "mysql2": "^1.6.4",
     "npm": "^6.5.0",
     "sanitize": "^2.1.0",
-    "sqlstring": "^2.3.1"
+    "sqlstring": "^2.3.1",
+    "twitter": "^1.7.1"
   }
 }

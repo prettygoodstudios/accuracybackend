@@ -1,10 +1,19 @@
 //Import app
 const {app} = require("../server.js");
+const Twitter = require("twitter");
+const dotenv = require('dotenv');
+dotenv.config();
 
 //Database Imports
 const usersQueries = require("../database/users.js");
 const {createUser, createSession, authenticate, getUser} = usersQueries;
 
+const client = new Twitter({
+  consumer_key: process.env.TWITTER_CONSUMER_KEY,
+  consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
+  access_token_key: process.env.TWITTER_ACCESS_KEY,
+  access_token_secret: process.env.TWITTER_ACCESS_SECRET
+});
 
 const create = (req, res) => {
   const email = req.body.email;
@@ -64,10 +73,22 @@ const sendEmail = (req, res) => {
   });
 }
 
+const getTweets = (req, res) => {
+  var params = {screen_name: 'AccuracyUt'};
+  client.get('statuses/user_timeline', params, function(error, tweets, response) {
+    if (!error) {
+      res.send(tweets);
+    }else{
+      res.send({error});
+    }
+  });
+}
+
 module.exports = {
   create,
   newSession,
   authenticateSession,
   get,
-  sendEmail
+  sendEmail,
+  getTweets
 }
